@@ -72,22 +72,63 @@ def valida_nasce(linha, coluna, tabuleiro, tabuleiro_aux):
         vizinhos = conta_vizinho(linha, coluna, tabuleiro)
         if vizinhos == 3:
             tabuleiro_aux = cria_celula(linha, coluna, tabuleiro_aux)
+    return tabuleiro_aux
 
-def game_of_life():
+def verifica_se_nasce(linha, coluna, tabuleiro, tabuleiro_aux):
+    if linha - 1 < 0:
+        tabuleiro_aux = valida_nasce(linha+1, coluna, tabuleiro, tabuleiro_aux)
+        if coluna + 1 < 4:
+            tabuleiro_aux = valida_nasce(linha, coluna+1, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha+1, coluna+1, tabuleiro, tabuleiro_aux)
+        if coluna - 1 >= 0:
+            tabuleiro_aux = valida_nasce(linha, coluna-1, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha+1, coluna-1, tabuleiro, tabuleiro_aux)
+    elif coluna + 1 > 4:
+        tabuleiro_aux = valida_nasce(linha-1, coluna, tabuleiro, tabuleiro_aux)
+        if coluna - 1 >= 0:
+            tabuleiro_aux = valida_nasce(linha, coluna-1, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha-1, coluna-1, tabuleiro, tabuleiro_aux)
+        if coluna + 1 < 9:
+            tabuleiro_aux = valida_nasce(linha-1, coluna+1, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha, coluna+1, tabuleiro, tabuleiro_aux)
+    else:
+        if coluna - 1 < 0:
+            tabuleiro_aux = valida_nasce(linha-1, coluna+1, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha-1, coluna, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha, coluna+1, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha+1, coluna+1, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha+1, coluna, tabuleiro, tabuleiro_aux)
+        elif coluna + 1 > 4:
+            tabuleiro_aux = valida_nasce(linha-1, coluna-1, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha-1, coluna, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha, coluna-1, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha+1, coluna-1, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha+1, coluna, tabuleiro, tabuleiro_aux)
+        else:
+            tabuleiro_aux = valida_nasce(linha-1, coluna+1, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha-1, coluna-1, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha-1, coluna, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha+1 , coluna+1, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha+1 , coluna-1, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha+1 , coluna, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha, coluna+1, tabuleiro, tabuleiro_aux)
+            tabuleiro_aux = valida_nasce(linha, coluna-1, tabuleiro, tabuleiro_aux)
+    return tabuleiro_aux
 
-    tabuleiro = [
-        '0000X00000',
-        '0000X00000',
-        '0000X00000',
-        '0000000000',
-        '0000000000',]
 
-    tabuleiro_aux = [
-        '0000X00000',
-        '0000X00000',
-        '0000X00000',
-        '0000000000',
-        '0000000000',]
+def game_of_life(jogando, tabuleiro_anterior=[]):
+    clear()
+    if not jogando:
+        tabuleiro = [
+            '0000X00000',
+            '0000X00000',
+            '0000X00000',
+            '0000000000',
+            '0000000000',]
+    else:
+        tabuleiro = tabuleiro_anterior
+
+    tabuleiro_aux = tabuleiro.copy()
 
     coluna = 0
     linha = 0
@@ -97,93 +138,17 @@ def game_of_life():
                 vizinhos = conta_vizinho(linha, coluna, tabuleiro)
                 if vizinhos <= 1 or vizinhos >=4:
                     tabuleiro_aux = mata_celula(linha, coluna, tabuleiro_aux)
-                if vizinhos == 8:
-                    continue
-                elif linha - 1 < 0:
-                    if coluna + 1 < 4:
-                        if not tabuleiro[linha][coluna+1] == 'X':
-                            vizinhos = conta_vizinho(linha, coluna, tabuleiro)
-                            if vizinhos == 3:
-                                tabuleiro_aux = cria_celula(linha, coluna + 1, tabuleiro_aux)
-                        if not tabuleiro[linha+1][coluna+1] == 'X':
-                            vizinhos = conta_vizinho(linha+1, coluna+1, tabuleiro)
-                            if vizinhos == 3:
-                                tabuleiro_aux = cria_celula(linha + 1, coluna + 1, tabuleiro_aux)
-                    if not tabuleiro[linha+1][coluna] == 'X':
-                            vizinhos = conta_vizinho(linha+1, coluna, tabuleiro)
-                            if vizinhos == 3:
-                                tabuleiro_aux = cria_celula(linha + 1, coluna, tabuleiro_aux)
-                    if coluna - 1 >= 0:
-                        if not tabuleiro[linha][coluna-1] == 'X':
-                            vizinhos = conta_vizinho(linha, coluna-1, tabuleiro)
-                            if vizinhos == 3:
-                                tabuleiro_aux = cria_celula(linha, coluna - 1, tabuleiro_aux)
-                        if not tabuleiro[linha+1][coluna-1] == 'X':
-                            vizinhos = conta_vizinho(linha+1, coluna-1, tabuleiro)
-                            if vizinhos == 3:
-                                tabuleiro_aux = cria_celula(linha + 1, coluna - 1, tabuleiro_aux)
-                elif linha + 1 > 4:
-                    if linha -1 >= 0:
-                        if not tabuleiro[linha][coluna-1] == 'X':
-                            vizinhos = conta_vizinho(linha, coluna-1, tabuleiro)
-                            if vizinhos == 3:
-                                tabuleiro_aux = cria_celula(linha, coluna - 1, tabuleiro_aux)
-                        if not tabuleiro[linha-1][coluna-1] == 'X':
-                            vizinhos = conta_vizinho(linha-1, coluna-1, tabuleiro)
-                            if vizinhos == 3:
-                                tabuleiro_aux = cria_celula(linha -1, coluna - 1, tabuleiro_aux)
-                    if not tabuleiro[linha-1][coluna] == 'X':
-                            vizinhos = conta_vizinho(linha-1, coluna, tabuleiro)
-                            if vizinhos == 3:
-                                tabuleiro_aux = cria_celula(linha - 1, coluna, tabuleiro_aux)
-                    if linha + 1 < 9:
-                        if not tabuleiro[linha-1][coluna+1] == 'X':
-                            vizinhos = conta_vizinho(linha-1, coluna+1, tabuleiro)
-                            if vizinhos == 3:
-                                tabuleiro_aux = cria_celula(linha - 1, coluna + 1, tabuleiro_aux)
-                        if not tabuleiro[linha][coluna+1] == 'X':
-                            vizinhos = conta_vizinho(linha, coluna+1, tabuleiro)
-                            if vizinhos == 3:
-                                tabuleiro_aux = cria_celula(linha, coluna + 1, tabuleiro_aux)
-                else:
-                    if linha - 1 < 0:
-                        if not tabuleiro[linha-1][coluna+1] == 'X':
-                            vizinhos = conta_vizinho(linha-1, coluna+1, tabuleiro)
-                            if vizinhos == 3:
-                                tabuleiro_aux = cria_celula(linha - 1, coluna + 1, tabuleiro_aux)
-                        if not tabuleiro[linha-1][coluna] == 'X':
-                            vizinhos = conta_vizinho(linha-1, coluna, tabuleiro)
-                            if vizinhos == 3:
-                                tabuleiro_aux = cria_celula(linha - 1, coluna, tabuleiro_aux)
-                        if not tabuleiro[linha][coluna+1] == 'X':
-                            vizinhos = conta_vizinho(linha, coluna+1, tabuleiro)
-                            if vizinhos == 3:
-                                tabuleiro_aux = cria_celula(linha, coluna + 1, tabuleiro_aux)
-                        if not tabuleiro[linha+1][coluna+1] == 'X':
-                            vizinhos = conta_vizinho(linha+1, coluna+1, tabuleiro)
-                            if vizinhos == 3:
-                                tabuleiro_aux = cria_celula(linha + 1, coluna + 1, tabuleiro_aux)
-                        if not tabuleiro[linha+1][coluna] == 'X':
-                            vizinhos = conta_vizinho(linha+1, coluna, tabuleiro)
-                            if vizinhos == 3:
-                                tabuleiro_aux = cria_celula(linha + 1, coluna, tabuleiro_aux)
-                    elif linha + 1 > 9:
-                        if not tabuleiro[linha-1][coluna-1] == 'X':
-                            vizinhos = conta_vizinho(linha-1, coluna-1, tabuleiro)
-                            if vizinhos == 3:
-                                tabuleiro_aux = cria_celula(linha - 1, coluna - 1, tabuleiro_aux)
-                        if not tabuleiro[linha-1][coluna] == 'X':
-                            vizinhos = conta_vizinho(linha, coluna, tabuleiro)
-                            if vizinhos == 3:
-                                tabuleiro_aux = cria_celula(linha - 1, coluna, tabuleiro_aux)
-                        
-
-                    
-                                
-
+                tabuleiro_aux = verifica_se_nasce(linha, coluna, tabuleiro, tabuleiro_aux)
             coluna += 1
         coluna = 0
         linha += 1
+    
+    tabuleiro = tabuleiro_aux
+    for x in tabuleiro:
+        print(x)
+    time.sleep(2)
+    clear()
+    game_of_life(True, tabuleiro)
 
 
-game_of_life()
+game_of_life(False,[])
