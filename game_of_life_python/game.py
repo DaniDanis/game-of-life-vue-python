@@ -2,47 +2,30 @@ import time
 import os
 clear = lambda: os.system('clear')
 
+def _contador(linha, coluna, tabuleiro, vizinhos):
+    if tabuleiro[linha][coluna] == 'X':
+        vizinhos += 1
+    return vizinhos
+
 def conta_vizinho(linha, coluna, tabuleiro):
         vizinhos = 0
+        vizinhos = _contador(linha,coluna + 1,tabuleiro,vizinhos)
+        vizinhos = _contador(linha,coluna - 1,tabuleiro,vizinhos)
         if linha - 1 < 0:
-            if tabuleiro[linha][coluna + 1] == 'X':
-                vizinhos += 1
-            if tabuleiro[linha][coluna - 1] == 'X':
-                vizinhos += 1
-            if tabuleiro[linha + 1][coluna + 1] == 'X':
-                vizinhos += 1
-            if tabuleiro[linha + 1][coluna - 1] == 'X':
-                vizinhos += 1  
-            if tabuleiro[linha + 1][coluna] == 'X':
-                vizinhos += 1                    
+            vizinhos = _contador(linha + 1,coluna + 1,tabuleiro,vizinhos)
+            vizinhos = _contador(linha + 1,coluna - 1,tabuleiro,vizinhos)
+            vizinhos = _contador(linha + 1,coluna,tabuleiro,vizinhos)
         elif linha + 1 > 4:
-            if tabuleiro[linha][coluna + 1] == 'X':
-                vizinhos += 1
-            if tabuleiro[linha][coluna - 1] == 'X':
-                vizinhos += 1
-            if tabuleiro[linha - 1][coluna + 1] == 'X':
-                vizinhos += 1
-            if tabuleiro[linha - 1][coluna - 1] == 'X':
-                vizinhos += 1  
-            if tabuleiro[linha - 1][coluna] == 'X':
-                vizinhos += 1
+            vizinhos = _contador(linha - 1,coluna + 1,tabuleiro,vizinhos)
+            vizinhos = _contador(linha - 1,coluna - 1,tabuleiro,vizinhos)
+            vizinhos = _contador(linha - 1,coluna,tabuleiro,vizinhos)              
         else:
-            if tabuleiro[linha][coluna + 1] == 'X':
-                vizinhos += 1
-            if tabuleiro[linha][coluna - 1] == 'X':
-                vizinhos += 1
-            if tabuleiro[linha - 1][coluna + 1] == 'X':
-                vizinhos += 1
-            if tabuleiro[linha - 1][coluna - 1] == 'X':
-                vizinhos += 1  
-            if tabuleiro[linha - 1][coluna] == 'X':
-                vizinhos += 1
-            if tabuleiro[linha + 1][coluna + 1] == 'X':
-                vizinhos += 1
-            if tabuleiro[linha + 1][coluna - 1] == 'X':
-                vizinhos += 1  
-            if tabuleiro[linha + 1][coluna] == 'X':
-                vizinhos += 1
+            vizinhos = _contador(linha + 1,coluna + 1,tabuleiro,vizinhos)
+            vizinhos = _contador(linha + 1,coluna - 1,tabuleiro,vizinhos)
+            vizinhos = _contador(linha + 1,coluna,tabuleiro,vizinhos)
+            vizinhos = _contador(linha - 1,coluna + 1,tabuleiro,vizinhos)
+            vizinhos = _contador(linha - 1,coluna - 1,tabuleiro,vizinhos)
+            vizinhos = _contador(linha - 1,coluna,tabuleiro,vizinhos)
         return vizinhos
 
 def mata_celula(linha, coluna, tabuleiro):
@@ -83,7 +66,7 @@ def verifica_se_nasce(linha, coluna, tabuleiro, tabuleiro_aux):
         if coluna - 1 >= 0:
             tabuleiro_aux = valida_nasce(linha, coluna-1, tabuleiro, tabuleiro_aux)
             tabuleiro_aux = valida_nasce(linha+1, coluna-1, tabuleiro, tabuleiro_aux)
-    elif coluna + 1 > 4:
+    elif linha + 1 > 4:
         tabuleiro_aux = valida_nasce(linha-1, coluna, tabuleiro, tabuleiro_aux)
         if coluna - 1 >= 0:
             tabuleiro_aux = valida_nasce(linha, coluna-1, tabuleiro, tabuleiro_aux)
@@ -115,14 +98,13 @@ def verifica_se_nasce(linha, coluna, tabuleiro, tabuleiro_aux):
             tabuleiro_aux = valida_nasce(linha, coluna-1, tabuleiro, tabuleiro_aux)
     return tabuleiro_aux
 
-
 def game_of_life(jogando, tabuleiro_anterior=[]):
     clear()
     if not jogando:
         tabuleiro = [
-            '0000X00000',
-            '0000X00000',
-            '0000X00000',
+            '00X0000000',
+            'X0X0000000',
+            '0XX0000000',
             '0000000000',
             '0000000000',]
     else:
@@ -143,9 +125,11 @@ def game_of_life(jogando, tabuleiro_anterior=[]):
         coluna = 0
         linha += 1
     
-    tabuleiro = tabuleiro_aux
-    for x in tabuleiro:
-        print(x)
+    tabuleiro = tabuleiro_aux.copy()
+    for x in tabuleiro_aux:
+        print(x.replace('0', "\U00002B1B").replace('X', "\U00002B1C"))
+    print("--------------------------")
+    print("Para sair pressione ctrl+C")
     time.sleep(2)
     clear()
     game_of_life(True, tabuleiro)
