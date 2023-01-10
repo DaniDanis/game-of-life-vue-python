@@ -1,4 +1,5 @@
 <template>
+  {{ dias }}
   <canvas id="canvas" width="500" height="500"></canvas>
 </template>
 
@@ -10,9 +11,51 @@ export default {
       quadradosPintados: [[], [], [], [], [], [], [], [], [], []],
       vaiMorrer: [[], [], [], [], [], [], [], [], [], []],
       vaiNascer: [[], [], [], [], [], [], [], [], [], []],
+      dias: 0,
     };
   },
   methods: {
+    logicaJogo(jogando) {
+      this.jogando = jogando;
+      if (jogando) {
+        for (var y in this.quadradosPintados) {
+          var linha = Number(y);
+          if (this.quadradosPintados[linha].length > 0) {
+            for (var x in this.quadradosPintados[linha]) {
+              var coluna = this.quadradosPintados[linha][x];
+              var vizinhos = this.contaVizinhos(linha, coluna);
+              this.verificaSeNasce(linha, coluna);
+              if (vizinhos <= 1 || vizinhos >= 4) {
+                this.vaiMorrer[linha].push(coluna);
+              }
+            }
+          }
+        }
+        for (var morre in this.vaiMorrer) {
+          if (this.vaiMorrer[morre].length > 0) {
+            var linhaMorre = Number(morre);
+            for (var z in this.vaiMorrer[morre]) {
+              var colunaMorre = this.vaiMorrer[morre][z];
+              this.mataCelula(linhaMorre, colunaMorre);
+            }
+          }
+        }
+        for (var nasce in this.vaiNascer) {
+          if (this.vaiNascer[nasce].length > 0) {
+            var linhaNasce = Number(nasce);
+            for (var n in this.vaiNascer[nasce]) {
+              var colunaNasce = this.vaiNascer[nasce][n];
+              this.criaCelula(linhaNasce, colunaNasce);
+            }
+          }
+        }
+        console.log(this.quadradosPintados);
+        this.reseta(false);
+        setTimeout(() => {
+          this.logicaJogo(this.jogando);
+        }, 1500);
+      }
+    },
     desenhaTabuleiro() {
       const ctx = document.getElementById("canvas").getContext("2d");
       for (var i = 0; i < 10; i++) {
@@ -24,273 +67,112 @@ export default {
     },
     pintaQuadrado(x, y) {
       if (this.quadradosPintados[x].includes(y)) {
-        this.mataCelula(y, x);
+        this.mataCelula(x, y);
       } else {
-        this.criaCelula(y, x);
-      }
-    },
-    logicaJogo(jogando) {
-      this.jogando = jogando;
-      if (jogando) {
-        for (var y in this.quadradosPintados) {
-          var coluna = Number(y);
-          if (this.quadradosPintados[coluna].length > 0) {
-            for (var x in this.quadradosPintados[coluna]) {
-              var linha = this.quadradosPintados[coluna][x];
-              var vizinhos = this.contaVizinhos(linha, coluna);
-              this.verificaSeNasce(linha, coluna, vizinhos);
-              if (vizinhos <= 1 || vizinhos >= 4) {
-                this.vaiMorrer[coluna].push(linha);
-              }
-            }
-          }
-        }
-        for (var morre in this.vaiMorrer) {
-          if (this.vaiMorrer[morre].length > 0) {
-            var colunaMorre = Number(morre);
-            for (var z in this.vaiMorrer[morre]) {
-              var linhaMorre = this.vaiMorrer[morre][z];
-              this.mataCelula(linhaMorre, colunaMorre);
-            }
-          }
-        }
-        for (var nasce in this.vaiNascer) {
-          if (this.vaiNascer[nasce].length > 0) {
-            var colunaNasce = Number(nasce);
-            for (var n in this.vaiNascer[nasce]) {
-              var linhaNasce = this.vaiNascer[nasce][n];
-              this.criaCelula(linhaNasce, colunaNasce);
-            }
-          }
-        }
-        this.reseta(false);
-        setTimeout(() => {
-          this.logicaJogo(this.jogando);
-        }, 1500);
+        this.criaCelula(x, y);
       }
     },
     mataCelula(linha, coluna) {
       const ctx = document.getElementById("canvas").getContext("2d");
-      ctx.clearRect(coluna * 50, linha * 50, 50, 50);
+      ctx.clearRect(linha * 50, coluna * 50, 50, 50);
       ctx.strokeStyle = "rgb(157, 157, 157, 128)";
-      ctx.strokeRect(coluna * 50, linha * 50, 50, 50);
-      var indice = this.quadradosPintados[coluna].indexOf(linha);
-      this.quadradosPintados[coluna].splice(indice, 1);
+      ctx.strokeRect(linha * 50, coluna * 50, 50, 50);
+      var indice = this.quadradosPintados[linha].indexOf(coluna);
+      this.quadradosPintados[linha].splice(indice, 1);
     },
     criaCelula(linha, coluna) {
       const ctx = document.getElementById("canvas").getContext("2d");
       ctx.fillStyle = "rgb(0, 0, 0, 128)";
-      ctx.fillRect(coluna * 50, linha * 50, 50, 50);
+      ctx.fillRect(linha * 50, coluna * 50, 50, 50);
       ctx.strokeStyle = "rgb(157,157,157, 128)";
-      ctx.strokeRect(coluna * 50, linha * 50, 50, 50);
-      this.quadradosPintados[coluna].push(linha);
+      ctx.strokeRect(linha * 50, coluna * 50, 50, 50);
+      this.quadradosPintados[linha].push(coluna);
     },
-    contaVizinhos(linha, coluna) {
-      var vizinhos = 0;
-      if (coluna - 1 < 0) {
-        this.quadradosPintados[coluna].includes(linha + 1) ? vizinhos++ : null;
-        this.quadradosPintados[coluna].includes(linha - 1) ? vizinhos++ : null;
-        this.quadradosPintados[coluna + 1].includes(linha + 1)
-          ? vizinhos++
-          : null;
-        this.quadradosPintados[coluna + 1].includes(linha) ? vizinhos++ : null;
-        this.quadradosPintados[coluna + 1].includes(linha - 1)
-          ? vizinhos++
-          : null;
-      } else if (coluna + 1 > 9) {
-        this.quadradosPintados[coluna].includes(linha + 1) ? vizinhos++ : null;
-        this.quadradosPintados[coluna].includes(linha - 1) ? vizinhos++ : null;
-        this.quadradosPintados[coluna - 1].includes(linha + 1)
-          ? vizinhos++
-          : null;
-        this.quadradosPintados[coluna - 1].includes(linha) ? vizinhos++ : null;
-        this.quadradosPintados[coluna - 1].includes(linha - 1)
-          ? vizinhos++
-          : null;
-      } else {
-        this.quadradosPintados[coluna].includes(linha + 1) ? vizinhos++ : null;
-        this.quadradosPintados[coluna].includes(linha - 1) ? vizinhos++ : null;
-        this.quadradosPintados[coluna + 1].includes(linha + 1)
-          ? vizinhos++
-          : null;
-        this.quadradosPintados[coluna + 1].includes(linha) ? vizinhos++ : null;
-        this.quadradosPintados[coluna + 1].includes(linha - 1)
-          ? vizinhos++
-          : null;
-        this.quadradosPintados[coluna - 1].includes(linha + 1)
-          ? vizinhos++
-          : null;
-        this.quadradosPintados[coluna - 1].includes(linha) ? vizinhos++ : null;
-        this.quadradosPintados[coluna - 1].includes(linha - 1)
-          ? vizinhos++
-          : null;
+    contador(linha, coluna, vizinhos) {
+      if (this.quadradosPintados[linha].includes(coluna)) {
+        vizinhos++;
       }
       return vizinhos;
     },
-    verificaSeNasce(linha, coluna, vizinhos) {
-      if (vizinhos == 8) {
-        return;
-      } else if (coluna - 1 < 0) {
-        if (linha + 1 < 9) {
-          if (!this.quadradosPintados[coluna].includes(linha + 1)) {
-            if (this.contaVizinhos(linha + 1, coluna) == 3) {
-              this.vaiNascer[coluna].push(linha + 1);
-            }
-          }
-          if (!this.quadradosPintados[coluna + 1].includes(linha + 1)) {
-            if (this.contaVizinhos(linha + 1, coluna + 1) == 3) {
-              this.vaiNascer[coluna + 1].push(linha + 1);
-            }
-          }
-        }
-        if (!this.quadradosPintados[coluna + 1].includes(linha)) {
-          if (this.contaVizinhos(linha, coluna + 1) == 3) {
-            this.vaiNascer[coluna + 1].push(linha);
-          }
-        }
-        if (linha - 1 >= 0) {
-          if (!this.quadradosPintados[coluna].includes(linha - 1)) {
-            if (this.contaVizinhos(linha - 1, coluna) == 3) {
-              this.vaiNascer[coluna].push(linha - 1);
-            }
-          }
-          if (!this.quadradosPintados[coluna + 1].includes(linha - 1)) {
-            if (this.contaVizinhos(linha - 1, coluna + 1) == 3) {
-              this.vaiNascer[coluna + 1].push(linha - 1);
-            }
-          }
-        }
-      } else if (coluna + 1 > 9) {
-        if (linha - 1 >= 0) {
-          if (!this.quadradosPintados[coluna].includes(linha - 1)) {
-            if (this.contaVizinhos(linha - 1, coluna) == 3) {
-              this.vaiNascer[coluna].push(linha - 1);
-            }
-          }
-          if (!this.quadradosPintados[coluna - 1].includes(linha - 1)) {
-            if (this.contaVizinhos(linha - 1, coluna - 1) == 3) {
-              this.vaiNascer[coluna - 1].push(linha - 1);
-            }
-          }
-        }
-        if (!this.quadradosPintados[coluna - 1].includes(linha)) {
-          if (this.contaVizinhos(linha, coluna - 1) == 3) {
-            this.vaiNascer[coluna - 1].push(linha);
-          }
-        }
-        if (linha + 1 < 9) {
-          if (!this.quadradosPintados[coluna - 1].includes(linha + 1)) {
-            if (this.contaVizinhos(linha + 1, coluna - 1) == 3) {
-              this.vaiNascer[coluna - 1].push(linha + 1);
-            }
-          }
-          if (!this.quadradosPintados[coluna].includes(linha + 1)) {
-            if (this.contaVizinhos(linha + 1, coluna) == 3) {
-              this.vaiNascer[coluna].push(linha + 1);
-            }
-          }
-        }
+    contaVizinhos(linha, coluna) {
+      var vizinhos = 0;
+      vizinhos = this.contador(linha, coluna + 1, vizinhos);
+      vizinhos = this.contador(linha, coluna - 1, vizinhos);
+      if (linha - 1 < 0) {
+        vizinhos = this.contador(linha + 1, coluna + 1, vizinhos);
+        vizinhos = this.contador(linha + 1, coluna - 1, vizinhos);
+        vizinhos = this.contador(linha + 1, coluna, vizinhos);
+      } else if (linha + 1 > 4) {
+        vizinhos = this.contador(linha - 1, coluna + 1, vizinhos);
+        vizinhos = this.contador(linha - 1, coluna - 1, vizinhos);
+        vizinhos = this.contador(linha - 1, coluna, vizinhos);
       } else {
-        if (linha - 1 < 0) {
-          if (!this.quadradosPintados[coluna - 1].includes(linha + 1)) {
-            if (this.contaVizinhos(linha + 1, coluna - 1) == 3) {
-              this.vaiNascer[coluna - 1].push(linha + 1);
-            }
-          }
-          if (!this.quadradosPintados[coluna - 1].includes(linha)) {
-            if (this.contaVizinhos(linha, coluna - 1) == 3) {
-              this.vaiNascer[coluna - 1].push(linha);
-            }
-          }
-          if (!this.quadradosPintados[coluna].includes(linha + 1)) {
-            if (this.contaVizinhos(linha + 1, coluna) == 3) {
-              this.vaiNascer[coluna].push(linha + 1);
-            }
-          }
-          if (!this.quadradosPintados[coluna + 1].includes(linha + 1)) {
-            if (this.contaVizinhos(linha + 1, coluna + 1) == 3) {
-              this.vaiNascer[coluna + 1].push(linha + 1);
-            }
-          }
-          if (!this.quadradosPintados[coluna + 1].includes(linha)) {
-            if (this.contaVizinhos(linha, coluna + 1) == 3) {
-              this.vaiNascer[coluna + 1].push(linha);
-            }
-          }
-        } else if (linha + 1 > 9) {
-          if (!this.quadradosPintados[coluna - 1].includes(linha - 1)) {
-            if (this.contaVizinhos(linha - 1, coluna - 1) == 3) {
-              this.vaiNascer[coluna - 1].push(linha - 1);
-            }
-          }
-          if (!this.quadradosPintados[coluna - 1].includes(linha)) {
-            if (this.contaVizinhos(linha, coluna - 1) == 3) {
-              this.vaiNascer[coluna - 1].push(linha);
-            }
-          }
-          if (!this.quadradosPintados[coluna].includes(linha - 1)) {
-            if (this.contaVizinhos(linha - 1, coluna) == 3) {
-              this.vaiNascer[coluna].push(linha - 1);
-            }
-          }
-          if (!this.quadradosPintados[coluna + 1].includes(linha - 1)) {
-            if (this.contaVizinhos(linha - 1, coluna + 1) == 3) {
-              this.vaiNascer[coluna + 1].push(linha - 1);
-            }
-          }
-          if (!this.quadradosPintados[coluna + 1].includes(linha)) {
-            if (this.contaVizinhos(linha, coluna + 1) == 3) {
-              this.vaiNascer[coluna + 1].push(linha);
-            }
-          }
-        } else {
-          if (!this.quadradosPintados[coluna - 1].includes(linha + 1)) {
-            if (this.contaVizinhos(linha + 1, coluna - 1) == 3) {
-              this.vaiNascer[coluna - 1].push(linha + 1);
-            }
-          }
-          if (!this.quadradosPintados[coluna - 1].includes(linha - 1)) {
-            if (this.contaVizinhos(linha - 1, coluna - 1) == 3) {
-              this.vaiNascer[coluna - 1].push(linha - 1);
-            }
-          }
-          if (!this.quadradosPintados[coluna - 1].includes(linha)) {
-            if (this.contaVizinhos(linha, coluna - 1) == 3) {
-              this.vaiNascer[coluna - 1].push(linha);
-            }
-          }
-          if (!this.quadradosPintados[coluna].includes(linha + 1)) {
-            if (this.contaVizinhos(linha + 1, coluna) == 3) {
-              this.vaiNascer[coluna].push(linha + 1);
-            }
-          }
-          if (!this.quadradosPintados[coluna].includes(linha - 1)) {
-            if (this.contaVizinhos(linha - 1, coluna) == 3) {
-              this.vaiNascer[coluna].push(linha - 1);
-            }
-          }
-          if (!this.quadradosPintados[coluna + 1].includes(linha + 1)) {
-            if (this.contaVizinhos(linha + 1, coluna + 1) == 3) {
-              this.vaiNascer[coluna + 1].push(linha + 1);
-            }
-          }
-          if (!this.quadradosPintados[coluna + 1].includes(linha - 1)) {
-            if (this.contaVizinhos(linha - 1, coluna + 1) == 3) {
-              this.vaiNascer[coluna + 1].push(linha - 1);
-            }
-          }
-          if (!this.quadradosPintados[coluna + 1].includes(linha)) {
-            if (this.contaVizinhos(linha, coluna + 1) == 3) {
-              this.vaiNascer[coluna + 1].push(linha);
-            }
-          }
+        vizinhos = this.contador(linha + 1, coluna + 1, vizinhos);
+        vizinhos = this.contador(linha + 1, coluna - 1, vizinhos);
+        vizinhos = this.contador(linha + 1, coluna, vizinhos);
+        vizinhos = this.contador(linha - 1, coluna + 1, vizinhos);
+        vizinhos = this.contador(linha - 1, coluna - 1, vizinhos);
+        vizinhos = this.contador(linha - 1, coluna, vizinhos);
+      }
+      return vizinhos;
+    },
+    verificador(linha, coluna) {
+      if (!this.quadradosPintados[linha].includes(coluna)) {
+        if (this.contaVizinhos(linha, coluna) == 3) {
+          this.vaiNascer[linha].push(coluna);
         }
       }
+      return;
     },
-    reseta(tudo) {
+    verificaSeNasce(linha, coluna) {
+      if (linha - 1 < 0) {
+        this.verificador(linha + 1, coluna);
+        if (coluna + 1 < 4) {
+          this.verificador(linha, coluna + 1);
+        }
+        if (coluna - 1 >= 0) {
+          this.verificador(linha, coluna - 1);
+          this.verificador(linha + 1, coluna - 1);
+        }
+      } else if (linha + 1 > 4) {
+        this.verificador(linha - 1, coluna);
+        if (coluna - 1 >= 0) {
+          this.verificador(linha, coluna - 1);
+          this.verificador(linha - 1, coluna - 1);
+        }
+        if (coluna + 1 < 9) {
+          this.verificador(linha, coluna + 1);
+          this.verificador(linha - 1, coluna + 1);
+        }
+      } else {
+        this.verificador(linha - 1, coluna);
+        this.verificador(linha + 1, coluna);
+        if (coluna - 1 < 0) {
+          this.verificador(linha + 1, coluna + 1);
+          this.verificador(linha - 1, coluna + 1);
+          this.verificador(linha, coluna + 1);
+        } else if (coluna + 1 > 4) {
+          this.verificador(linha + 1, coluna - 1);
+          this.verificador(linha - 1, coluna - 1);
+          this.verificador(linha, coluna - 1);
+        } else {
+          this.verificador(linha + 1, coluna + 1);
+          this.verificador(linha + 1, coluna - 1);
+          this.verificador(linha - 1, coluna + 1);
+          this.verificador(linha - 1, coluna - 1);
+          this.verificador(linha, coluna + 1);
+          this.verificador(linha, coluna - 1);
+        }
+      }
+      return;
+    },
+    reseta(repete) {
+      console.log(this.vaiNascer);
       this.vaiMorrer = [[], [], [], [], [], [], [], [], [], []];
       this.vaiNascer = [[], [], [], [], [], [], [], [], [], []];
-      if (tudo) {
+      this.dias += 1;
+      if (repete) {
+        this.dias = 0;
         this.quadradosPintados = [[], [], [], [], [], [], [], [], [], []];
         const ctx = document.getElementById("canvas").getContext("2d");
         ctx.reset();

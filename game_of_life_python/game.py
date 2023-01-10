@@ -54,7 +54,7 @@ def conta_vizinho(linha, coluna, tabuleiro):
         elif linha + 1 > 4:
             vizinhos = _contador(linha - 1,coluna + 1,tabuleiro,vizinhos)
             vizinhos = _contador(linha - 1,coluna - 1,tabuleiro,vizinhos)
-            vizinhos = _contador(linha - 1,coluna,tabuleiro,vizinhos)              
+            vizinhos = _contador(linha - 1,coluna,tabuleiro,vizinhos)
         else:
             vizinhos = _contador(linha + 1,coluna + 1,tabuleiro,vizinhos)
             vizinhos = _contador(linha + 1,coluna - 1,tabuleiro,vizinhos)
